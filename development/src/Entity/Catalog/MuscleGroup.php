@@ -6,6 +6,7 @@ namespace App\Entity\Catalog;
 
 use App\Repository\Catalog\MuscleGroupRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MuscleGroupRepository::class)]
@@ -27,11 +28,13 @@ class MuscleGroup
         $this->id = Uuid::v4();
     }
 
+    #[Groups(['exercise:read'])]
     public function getId(): Uuid
     {
         return $this->id;
     }
 
+    #[Groups(['exercise:read'])]
     public function getName(): string
     {
         return $this->name;
@@ -43,6 +46,7 @@ class MuscleGroup
         return $this;
     }
 
+    #[Groups(['exercise:read'])]
     public function getSlug(): string
     {
         return $this->slug;

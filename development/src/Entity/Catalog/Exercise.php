@@ -9,6 +9,7 @@ use App\Repository\Catalog\ExerciseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ExerciseRepository::class)]
@@ -63,11 +64,13 @@ class Exercise
         $this->secondaryMuscles = new ArrayCollection();
     }
 
+    #[Groups(['exercise:read', 'mesocycle:read', 'session:read', 'performance:read'])]
     public function getId(): Uuid
     {
         return $this->id;
     }
 
+    #[Groups(['exercise:read', 'mesocycle:read', 'session:read', 'performance:read'])]
     public function getName(): string
     {
         return $this->name;
@@ -79,6 +82,7 @@ class Exercise
         return $this;
     }
 
+    #[Groups(['exercise:read'])]
     public function getDescription(): ?string
     {
         return $this->description;
@@ -90,6 +94,7 @@ class Exercise
         return $this;
     }
 
+    #[Groups(['exercise:read'])]
     public function getInstructions(): ?string
     {
         return $this->instructions;
@@ -101,6 +106,7 @@ class Exercise
         return $this;
     }
 
+    #[Groups(['exercise:read'])]
     public function getVideoUrl(): ?string
     {
         return $this->videoUrl;
@@ -112,6 +118,7 @@ class Exercise
         return $this;
     }
 
+    #[Groups(['exercise:read', 'mesocycle:read', 'session:read'])]
     public function getEquipment(): EquipmentType
     {
         return $this->equipment;
@@ -124,6 +131,7 @@ class Exercise
     }
 
     /** @return Collection<int, MuscleGroup> */
+    #[Groups(['exercise:read'])]
     public function getPrimaryMuscles(): Collection
     {
         return $this->primaryMuscles;
@@ -138,6 +146,7 @@ class Exercise
     }
 
     /** @return Collection<int, MuscleGroup> */
+    #[Groups(['exercise:read'])]
     public function getSecondaryMuscles(): Collection
     {
         return $this->secondaryMuscles;
