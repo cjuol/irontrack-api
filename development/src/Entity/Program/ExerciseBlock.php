@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Entity\Program;
 
 use App\Enum\BlockType;
+use App\Repository\Program\ExerciseBlockRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ExerciseBlockRepository::class)]
 #[ORM\Table(name: 'exercise_blocks')]
 class ExerciseBlock
 {

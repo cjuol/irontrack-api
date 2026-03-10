@@ -6,10 +6,11 @@ namespace App\Entity\Program;
 
 use App\Enum\SetType;
 use App\Enum\WeightModifier;
+use App\Repository\Program\PlannedSetRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: PlannedSetRepository::class)]
 #[ORM\Table(name: 'planned_sets')]
 class PlannedSet
 {

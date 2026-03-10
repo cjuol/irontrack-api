@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Entity\Program;
 
 use App\Enum\MetabolicFormat;
+use App\Repository\Program\WeeklyMetabolicPlanRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: WeeklyMetabolicPlanRepository::class)]
 #[ORM\Table(name: 'weekly_metabolic_plans')]
 #[ORM\UniqueConstraint(name: 'uq_metabolic_block_week', columns: ['exercise_block_id', 'week_number'])]
 class WeeklyMetabolicPlan

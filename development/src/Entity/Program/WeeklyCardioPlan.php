@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Entity\Program;
 
 use App\Enum\CardioFormat;
+use App\Repository\Program\WeeklyCardioPlanRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: WeeklyCardioPlanRepository::class)]
 #[ORM\Table(name: 'weekly_cardio_plans')]
 #[ORM\UniqueConstraint(name: 'uq_cardio_block_week', columns: ['exercise_block_id', 'week_number'])]
 class WeeklyCardioPlan
