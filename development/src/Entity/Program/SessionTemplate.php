@@ -13,6 +13,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SessionTemplateRepository::class)]
 #[ORM\Table(name: 'session_templates')]
+#[ORM\UniqueConstraint(name: 'uq_session_template_mesocycle_sort_order', fields: ['mesocycle', 'sortOrder'])]
 class SessionTemplate
 {
     #[ORM\Id]
