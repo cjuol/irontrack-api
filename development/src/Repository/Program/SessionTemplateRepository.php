@@ -64,19 +64,37 @@ class SessionTemplateRepository extends ServiceEntityRepository
     /**
      * Devuelve la plantilla de sesión de un mesociclo con el sortOrder indicado.
      * Permite localizar una plantilla directamente en BD sin cargar todas las del mesociclo.
-     * El orden por sortOrder + id garantiza resultados deterministas en caso de duplicados.
+     *
+     * Si se detectan duplicados para (mesocycle, sortOrder), lanza una excepción para
+     * hacer visible el problema de integridad en lugar de ocultarlo con LIMIT 1.
      */
     public function findOneByMesocycleAndSortOrder(Mesocycle $mesocycle, int $sortOrder): ?SessionTemplate
     {
-        return $this->createQueryBuilder('st')
+        $results = $this->createQueryBuilder('st')
             ->where('st.mesocycle = :mesocycle')
             ->andWhere('st.sortOrder = :sortOrder')
             ->setParameter('mesocycle', $mesocycle)
             ->setParameter('sortOrder', $sortOrder)
             ->orderBy('st.sortOrder', 'ASC')
             ->addOrderBy('st.id', 'ASC')
-            ->setMaxResults(1)
+            ->setMaxResults(2)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        $count = \count($results);
+
+        if ($count === 0) {
+            return null;
+        }
+
+        if ($count === 1) {
+            return $results[0];
+        }
+
+        throw new \RuntimeException(sprintf(
+            'Se han encontrado múltiples SessionTemplate para el mismo mesociclo y sortOrder (mesocycle id: %s, sortOrder: %d).',
+            (string) $mesocycle->getId(),
+            $sortOrder
+        ));
     }
 }
