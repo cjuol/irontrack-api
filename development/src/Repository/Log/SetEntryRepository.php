@@ -96,10 +96,12 @@ class SetEntryRepository extends ServiceEntityRepository
         int $limit = 10,
     ): array {
         // Paso 1: obtener los IDs de las últimas N WorkoutSession con ese ejercicio.
-        // Se agrupa por ws.id para garantizar una fila por sesión (un TrainingDay
-        // puede tener varias sesiones y no queremos duplicados por serie).
+        // Se agrupa por ws.id (+ td.date, ws.startedAt para validez de SELECT) para
+        // garantizar una fila por sesión. Se ordena por ws.startedAt DESC —no por
+        // ws.id, que es un UUID aleatorio y no refleja recencia— para que limit
+        // seleccione realmente las N sesiones más recientes.
         $sessions = $this->createQueryBuilder('se')
-            ->select('ws.id AS sessionId, td.date AS date')
+            ->select('ws.id AS sessionId, td.date AS date, ws.startedAt AS startedAt')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
@@ -107,9 +109,8 @@ class SetEntryRepository extends ServiceEntityRepository
             ->andWhere('td.user = :user')
             ->setParameter('exercise', $exercise)
             ->setParameter('user', $user)
-            ->groupBy('ws.id', 'td.date')
-            ->orderBy('td.date', 'DESC')
-            ->addOrderBy('ws.id', 'DESC')
+            ->groupBy('ws.id', 'td.date', 'ws.startedAt')
+            ->orderBy('ws.startedAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
