@@ -188,7 +188,7 @@ class PlannedSet
     /** Devuelve el rango de reps como string legible: "8-10", "6", "AMRAP" */
     public function getRepsLabel(): string
     {
-        if ($this->rirToFailure && $this->setType === SetType::AMRAP) {
+        if ($this->setType === SetType::AMRAP) {
             return 'AMRAP';
         }
         if ($this->repsMin !== null && $this->repsMax !== null && $this->repsMin !== $this->repsMax) {

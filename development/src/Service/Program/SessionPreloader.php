@@ -23,6 +23,7 @@ class SessionPreloader
 
     /**
      * Construye una sesión a partir de la plantilla con el sortOrder indicado del mesociclo activo.
+     * Usa una query directa por sortOrder en lugar de cargar todas las plantillas del mesociclo.
      *
      * @throws \RuntimeException si no hay mesociclo activo o no existe plantilla con ese sortOrder.
      */
@@ -36,13 +37,7 @@ class SessionPreloader
 
         $weekNumber = $mesocycle->getWeekNumber($day->getDate()) ?? 1;
 
-        $template = null;
-        foreach ($this->sessionTemplateRepository->findByMesocycle($mesocycle) as $t) {
-            if ($t->getSortOrder() === $sortOrder) {
-                $template = $t;
-                break;
-            }
-        }
+        $template = $this->sessionTemplateRepository->findOneByMesocycleAndSortOrder($mesocycle, $sortOrder);
 
         if ($template === null) {
             throw new \RuntimeException(

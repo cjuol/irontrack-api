@@ -80,8 +80,8 @@ class SetEntryRepository extends ServiceEntityRepository
      * Usado por GET /api/v1/exercises/{id}/history
      *
      * Resultado: [
-     *   ['date' => '2026-02-10', 'sets' => [SetEntry, ...]],
-     *   ['date' => '2026-01-27', 'sets' => [SetEntry, ...]],
+     *   ['date' => '2026-02-10', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
+     *   ['date' => '2026-01-27', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
      * ]
      *
      * @return array<int, array{date: string, sessionId: string, sets: SetEntry[]}>
@@ -91,9 +91,11 @@ class SetEntryRepository extends ServiceEntityRepository
         User $user,
         int $limit = 10,
     ): array {
-        // Buscamos las fechas de las últimas N sesiones con ese ejercicio
+        // Buscamos las fechas de las últimas N sesiones con ese ejercicio.
+        // Nota: se usa ws.id directamente (no IDENTITY()) porque ws ya es un alias
+        // de WorkoutSession obtenido mediante JOIN, no una referencia de asociación.
         $dates = $this->createQueryBuilder('se')
-            ->select('DISTINCT td.date AS date, IDENTITY(ws.id) AS sessionId')
+            ->select('DISTINCT td.date AS date, ws.id AS sessionId')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
@@ -314,7 +316,16 @@ class SetEntryRepository extends ServiceEntityRepository
     // -------------------------------------------------------------------------
 
     /**
-     * Devuelve el PR (peso máximo levantado) del usuario en cada ejercicio.
+     * Devuelve el PR (peso máximo levantado) del usuario en cada ejercicio,
+     * junto con la fecha más temprana en que se consiguió ese peso máximo.
+     *
+     * Utiliza una subconsulta correlacionada para filtrar únicamente las series
+     * en que el peso es el máximo histórico del usuario en ese ejercicio.
+     * Luego agrupa por ejercicio y toma MIN(date) como fecha del PR.
+     *
+     * Esto garantiza que la fecha devuelta corresponde siempre al día en que
+     * se estableció el récord personal y no a la sesión más reciente
+     * (que sería el resultado de un simple MAX(td.date) en el GROUP BY).
      *
      * Resultado: [['exerciseName' => 'Sentadilla', 'maxWeight' => 120.0, 'date' => '2026-01-15'], ...]
      *
@@ -322,17 +333,30 @@ class SetEntryRepository extends ServiceEntityRepository
      */
     public function findPersonalRecords(User $user): array
     {
+        // Subconsulta correlacionada: peso máximo histórico del usuario en el ejercicio
+        // de la fila exterior (ee.exercise). El parámetro :user se reutiliza del exterior.
+        $subDql = $this->getEntityManager()->createQueryBuilder()
+            ->select('MAX(se2.weightKg)')
+            ->from(SetEntry::class, 'se2')
+            ->join('se2.exerciseEntry', 'ee2')
+            ->join('ee2.workoutSession', 'ws2')
+            ->join('ws2.trainingDay', 'td2')
+            ->where('ee2.exercise = ee.exercise')
+            ->andWhere('td2.user = :user')
+            ->getDQL();
+
         return $this->createQueryBuilder('se')
             ->select(
                 'ex.name AS exerciseName',
                 'MAX(se.weightKg) AS maxWeight',
-                'MAX(td.date) AS date',
+                'MIN(td.date) AS date',
             )
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.exercise', 'ex')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
             ->where('td.user = :user')
+            ->andWhere(sprintf('se.weightKg = (%s)', $subDql))
             ->setParameter('user', $user)
             ->groupBy('ex.id', 'ex.name')
             ->orderBy('ex.name', 'ASC')
