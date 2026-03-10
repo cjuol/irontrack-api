@@ -84,6 +84,10 @@ class SetEntryRepository extends ServiceEntityRepository
      *   ['date' => '2026-01-27', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
      * ]
      *
+     * El filtro de la segunda query usa ws.id (no td.date) para garantizar que
+     * se devuelven exactamente las N sesiones solicitadas. Filtrar por fecha podría
+     * incluir sesiones extra cuando un TrainingDay tiene múltiples WorkoutSession.
+     *
      * @return array<int, array{date: string, sessionId: string, sets: SetEntry[]}>
      */
     public function findPerformanceHistory(
@@ -91,11 +95,11 @@ class SetEntryRepository extends ServiceEntityRepository
         User $user,
         int $limit = 10,
     ): array {
-        // Buscamos las fechas de las últimas N sesiones con ese ejercicio.
-        // Nota: se usa ws.id directamente (no IDENTITY()) porque ws ya es un alias
-        // de WorkoutSession obtenido mediante JOIN, no una referencia de asociación.
-        $dates = $this->createQueryBuilder('se')
-            ->select('DISTINCT td.date AS date, ws.id AS sessionId')
+        // Paso 1: obtener los IDs de las últimas N WorkoutSession con ese ejercicio.
+        // Se agrupa por ws.id para garantizar una fila por sesión (un TrainingDay
+        // puede tener varias sesiones y no queremos duplicados por serie).
+        $sessions = $this->createQueryBuilder('se')
+            ->select('ws.id AS sessionId, td.date AS date')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
@@ -103,51 +107,52 @@ class SetEntryRepository extends ServiceEntityRepository
             ->andWhere('td.user = :user')
             ->setParameter('exercise', $exercise)
             ->setParameter('user', $user)
+            ->groupBy('ws.id', 'td.date')
             ->orderBy('td.date', 'DESC')
+            ->addOrderBy('ws.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
 
-        if (empty($dates)) {
+        if (empty($sessions)) {
             return [];
         }
 
-        $dateValues = array_column($dates, 'date');
+        $sessionIds = array_column($sessions, 'sessionId');
 
-        // Cargamos todas las series de esas fechas en una sola query
+        // Paso 2: cargar todas las series de esas sesiones en una sola query.
+        // Filtramos por ws.id para evitar incluir series de otras sesiones del mismo día.
         $sets = $this->createQueryBuilder('se')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
             ->where('ee.exercise = :exercise')
             ->andWhere('td.user = :user')
-            ->andWhere('td.date IN (:dates)')
+            ->andWhere('ws.id IN (:sessionIds)')
             ->setParameter('exercise', $exercise)
             ->setParameter('user', $user)
-            ->setParameter('dates', $dateValues)
+            ->setParameter('sessionIds', $sessionIds)
             ->orderBy('td.date', 'DESC')
+            ->addOrderBy('ws.startedAt', 'DESC')
             ->addOrderBy('se.sortOrder', 'ASC')
             ->getQuery()
             ->getResult();
 
-        // Agrupamos las series por fecha
+        // Agrupamos las series por sesión (ws.id)
         $grouped = [];
         foreach ($sets as $set) {
             /** @var SetEntry $set */
-            $date = $set->getExerciseEntry()
-                        ->getWorkoutSession()
-                        ->getTrainingDay()
-                        ->getDate()
-                        ->format('Y-m-d');
+            $session   = $set->getExerciseEntry()->getWorkoutSession();
+            $sessionId = (string) $session->getId();
 
-            if (!isset($grouped[$date])) {
-                $grouped[$date] = [
-                    'date'      => $date,
-                    'sessionId' => (string) $set->getExerciseEntry()->getWorkoutSession()->getId(),
+            if (!isset($grouped[$sessionId])) {
+                $grouped[$sessionId] = [
+                    'date'      => $session->getTrainingDay()->getDate()->format('Y-m-d'),
+                    'sessionId' => $sessionId,
                     'sets'      => [],
                 ];
             }
-            $grouped[$date]['sets'][] = $set;
+            $grouped[$sessionId]['sets'][] = $set;
         }
 
         return array_values($grouped);

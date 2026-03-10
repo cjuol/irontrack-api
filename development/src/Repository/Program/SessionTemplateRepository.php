@@ -64,6 +64,7 @@ class SessionTemplateRepository extends ServiceEntityRepository
     /**
      * Devuelve la plantilla de sesión de un mesociclo con el sortOrder indicado.
      * Permite localizar una plantilla directamente en BD sin cargar todas las del mesociclo.
+     * El orden por sortOrder + id garantiza resultados deterministas en caso de duplicados.
      */
     public function findOneByMesocycleAndSortOrder(Mesocycle $mesocycle, int $sortOrder): ?SessionTemplate
     {
@@ -72,6 +73,8 @@ class SessionTemplateRepository extends ServiceEntityRepository
             ->andWhere('st.sortOrder = :sortOrder')
             ->setParameter('mesocycle', $mesocycle)
             ->setParameter('sortOrder', $sortOrder)
+            ->orderBy('st.sortOrder', 'ASC')
+            ->addOrderBy('st.id', 'ASC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
