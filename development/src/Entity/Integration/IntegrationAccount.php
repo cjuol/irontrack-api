@@ -6,6 +6,7 @@ namespace App\Entity\Integration;
 
 use App\Entity\User;
 use App\Enum\IntegrationProvider;
+use App\Repository\Integration\IntegrationAccountRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,7 +18,7 @@ use Symfony\Component\Uid\Uuid;
  *
  * @see https://github.com/defuse/php-encryption
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: IntegrationAccountRepository::class)]
 #[ORM\Table(name: 'integration_accounts')]
 #[ORM\UniqueConstraint(name: 'uq_integration_user_provider', columns: ['user_id', 'provider'])]
 class IntegrationAccount

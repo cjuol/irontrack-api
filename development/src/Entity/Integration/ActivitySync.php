@@ -7,6 +7,7 @@ namespace App\Entity\Integration;
 use App\Entity\Log\TrainingDay;
 use App\Entity\Log\WorkoutSession;
 use App\Enum\SyncType;
+use App\Repository\Integration\ActivitySyncRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -14,7 +15,7 @@ use Symfony\Component\Uid\Uuid;
  * Registro de un dato sincronizado desde un servicio externo.
  * Conserva el rawData original para poder re-procesar si cambia la lógica.
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ActivitySyncRepository::class)]
 #[ORM\Table(name: 'activity_syncs')]
 #[ORM\UniqueConstraint(name: 'uq_sync_account_external', columns: ['integration_account_id', 'external_id', 'sync_type'])]
 class ActivitySync
