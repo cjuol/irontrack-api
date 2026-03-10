@@ -46,17 +46,15 @@ class WorkoutSession
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
-    // --- Campos reservados para integraciones futuras ---
-
-    /** @future Garmin / Strava */
+    /** Reservado para integración con Garmin / Strava. */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $totalCaloriesBurned = null;
 
-    /** @future Garmin / Polar */
+    /** Reservado para integración con Garmin / Polar. */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $avgHeartRate = null;
 
-    /** @future Garmin / Polar */
+    /** Reservado para integración con Garmin / Polar. */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $maxHeartRate = null;
 
