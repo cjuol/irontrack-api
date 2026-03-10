@@ -9,6 +9,7 @@ use App\Repository\Program\SessionTemplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SessionTemplateRepository::class)]
@@ -47,6 +48,7 @@ class SessionTemplate
         $this->exerciseBlocks = new ArrayCollection();
     }
 
+    #[Groups(['mesocycle:sessions', 'training-day:read', 'session:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -63,6 +65,7 @@ class SessionTemplate
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions', 'training-day:read', 'session:read'])]
     public function getName(): string
     {
         return $this->name;
@@ -74,6 +77,7 @@ class SessionTemplate
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions', 'session:read'])]
     public function getType(): SessionType
     {
         return $this->type;
@@ -85,6 +89,7 @@ class SessionTemplate
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -96,6 +101,7 @@ class SessionTemplate
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions', 'session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -108,6 +114,7 @@ class SessionTemplate
     }
 
     /** @return Collection<int, ExerciseBlock> */
+    #[Groups(['mesocycle:sessions'])]
     public function getExerciseBlocks(): Collection
     {
         return $this->exerciseBlocks;

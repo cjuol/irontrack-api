@@ -8,6 +8,7 @@ use App\Enum\SetType;
 use App\Enum\WeightModifier;
 use App\Repository\Program\PlannedSetRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: PlannedSetRepository::class)]
@@ -67,6 +68,7 @@ class PlannedSet
         $this->id = Uuid::v4();
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -83,6 +85,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -94,6 +97,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSetType(): SetType
     {
         return $this->setType;
@@ -105,6 +109,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getRepsMin(): ?int
     {
         return $this->repsMin;
@@ -116,6 +121,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getRepsMax(): ?int
     {
         return $this->repsMax;
@@ -127,6 +133,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getRir(): ?int
     {
         return $this->rir;
@@ -138,6 +145,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function isRirToFailure(): bool
     {
         return $this->rirToFailure;
@@ -152,6 +160,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getRestSeconds(): ?int
     {
         return $this->restSeconds;
@@ -163,6 +172,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getWeightModifier(): ?WeightModifier
     {
         return $this->weightModifier;
@@ -174,6 +184,7 @@ class PlannedSet
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -186,6 +197,7 @@ class PlannedSet
     }
 
     /** Devuelve el rango de reps como string legible: "8-10", "6", "AMRAP" */
+    #[Groups(['mesocycle:sessions'])]
     public function getRepsLabel(): string
     {
         if ($this->rirToFailure && $this->setType === SetType::AMRAP) {

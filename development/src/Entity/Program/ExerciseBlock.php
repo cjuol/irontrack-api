@@ -9,6 +9,7 @@ use App\Repository\Program\ExerciseBlockRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ExerciseBlockRepository::class)]
@@ -55,6 +56,7 @@ class ExerciseBlock
         $this->weeklyCardioPlans    = new ArrayCollection();
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -71,6 +73,7 @@ class ExerciseBlock
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getName(): string
     {
         return $this->name;
@@ -82,6 +85,7 @@ class ExerciseBlock
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getType(): BlockType
     {
         return $this->type;
@@ -93,6 +97,7 @@ class ExerciseBlock
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -105,6 +110,7 @@ class ExerciseBlock
     }
 
     /** @return Collection<int, PlannedExercise> */
+    #[Groups(['mesocycle:sessions'])]
     public function getPlannedExercises(): Collection
     {
         return $this->plannedExercises;

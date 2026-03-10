@@ -8,6 +8,7 @@ use App\Entity\Program\WeeklyCardioPlan;
 use App\Enum\CardioType;
 use App\Repository\Log\CardioEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: CardioEntryRepository::class)]
@@ -64,6 +65,7 @@ class CardioEntry
         $this->id = Uuid::v4();
     }
 
+    #[Groups(['session:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -91,6 +93,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getCardioType(): CardioType
     {
         return $this->cardioType;
@@ -102,6 +105,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getDurationSeconds(): int
     {
         return $this->durationSeconds;
@@ -113,6 +117,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getDistanceMeters(): ?float
     {
         return $this->distanceMeters !== null ? (float) $this->distanceMeters : null;
@@ -124,6 +129,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getAvgSpeedKmh(): ?float
     {
         return $this->avgSpeedKmh !== null ? (float) $this->avgSpeedKmh : null;
@@ -135,6 +141,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getInclinePct(): ?float
     {
         return $this->inclinePct !== null ? (float) $this->inclinePct : null;
@@ -146,6 +153,7 @@ class CardioEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -180,6 +188,7 @@ class CardioEntry
     }
 
     /** Pace en min/km. Null si no hay datos suficientes. */
+    #[Groups(['session:read'])]
     public function getPaceMinPerKm(): ?float
     {
         $distance = $this->getDistanceMeters();

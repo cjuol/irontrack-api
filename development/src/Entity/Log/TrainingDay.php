@@ -10,6 +10,7 @@ use App\Repository\Log\TrainingDayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TrainingDayRepository::class)]
@@ -72,6 +73,7 @@ class TrainingDay
         $this->workoutSessions = new ArrayCollection();
     }
 
+    #[Groups(['training-day:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -88,6 +90,7 @@ class TrainingDay
         return $this;
     }
 
+    #[Groups(['training-day:read'])]
     public function getDate(): \DateTimeImmutable
     {
         return $this->date;
@@ -99,6 +102,7 @@ class TrainingDay
         return $this;
     }
 
+    #[Groups(['training-day:read'])]
     public function getType(): TrainingDayType
     {
         return $this->type;
@@ -110,6 +114,7 @@ class TrainingDay
         return $this;
     }
 
+    #[Groups(['training-day:read'])]
     public function getStepGoal(): int
     {
         return $this->stepGoal;
@@ -121,6 +126,7 @@ class TrainingDay
         return $this;
     }
 
+    #[Groups(['training-day:read'])]
     public function getStepsActual(): ?int
     {
         return $this->stepsActual;
@@ -137,6 +143,7 @@ class TrainingDay
         return $this->stepsActual !== null && $this->stepsActual >= $this->stepGoal;
     }
 
+    #[Groups(['training-day:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -182,6 +189,7 @@ class TrainingDay
     }
 
     /** @return Collection<int, WorkoutSession> */
+    #[Groups(['training-day:read'])]
     public function getWorkoutSessions(): Collection
     {
         return $this->workoutSessions;

@@ -10,6 +10,7 @@ use App\Repository\Log\ExerciseEntryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ExerciseEntryRepository::class)]
@@ -61,6 +62,7 @@ class ExerciseEntry
         $this->setEntries = new ArrayCollection();
     }
 
+    #[Groups(['session:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -77,6 +79,7 @@ class ExerciseEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getExercise(): Exercise
     {
         return $this->exercise;
@@ -99,6 +102,7 @@ class ExerciseEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -110,6 +114,7 @@ class ExerciseEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -122,6 +127,7 @@ class ExerciseEntry
     }
 
     /** @return Collection<int, SetEntry> */
+    #[Groups(['session:read'])]
     public function getSetEntries(): Collection
     {
         return $this->setEntries;
@@ -136,6 +142,7 @@ class ExerciseEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getPreviousPerformance(): ?array
     {
         return $this->previousPerformance;

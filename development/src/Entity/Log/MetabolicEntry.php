@@ -7,6 +7,7 @@ namespace App\Entity\Log;
 use App\Entity\Program\WeeklyMetabolicPlan;
 use App\Repository\Log\MetabolicEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MetabolicEntryRepository::class)]
@@ -56,6 +57,7 @@ class MetabolicEntry
         $this->id = Uuid::v4();
     }
 
+    #[Groups(['session:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -83,6 +85,7 @@ class MetabolicEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getWeekNumber(): ?int
     {
         return $this->weekNumber;
@@ -94,6 +97,7 @@ class MetabolicEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getRoundsCompleted(): ?int
     {
         return $this->roundsCompleted;
@@ -105,6 +109,7 @@ class MetabolicEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getTimeSeconds(): ?int
     {
         return $this->timeSeconds;
@@ -116,6 +121,7 @@ class MetabolicEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getResult(): ?string
     {
         return $this->result;
@@ -127,6 +133,7 @@ class MetabolicEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;

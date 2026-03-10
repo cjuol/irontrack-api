@@ -7,6 +7,7 @@ namespace App\Entity\Log;
 use App\Entity\Program\PlannedSet;
 use App\Repository\Log\SetEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SetEntryRepository::class)]
@@ -62,6 +63,7 @@ class SetEntry
         $this->id = Uuid::v4();
     }
 
+    #[Groups(['session:read', 'performance:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -89,6 +91,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -100,6 +103,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read', 'performance:read'])]
     public function getWeightKg(): float
     {
         return (float) $this->weightKg;
@@ -111,6 +115,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read', 'performance:read'])]
     public function getRepsCompleted(): int
     {
         return $this->repsCompleted;
@@ -122,6 +127,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read', 'performance:read'])]
     public function getRirActual(): ?int
     {
         return $this->rirActual;
@@ -133,6 +139,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read', 'performance:read'])]
     public function isToFailure(): bool
     {
         return $this->toFailure;
@@ -147,6 +154,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getDurationSeconds(): ?int
     {
         return $this->durationSeconds;
@@ -158,6 +166,7 @@ class SetEntry
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -170,6 +179,7 @@ class SetEntry
     }
 
     /** Volumen de la serie: kg × reps. */
+    #[Groups(['session:read', 'performance:read'])]
     public function getVolume(): float
     {
         return $this->getWeightKg() * $this->repsCompleted;
@@ -179,6 +189,7 @@ class SetEntry
      * 1RM estimado usando la fórmula de Epley.
      * Sólo válido para series de más de 1 rep.
      */
+    #[Groups(['session:read', 'performance:read'])]
     public function getEstimated1RM(): ?float
     {
         if ($this->repsCompleted <= 1) {

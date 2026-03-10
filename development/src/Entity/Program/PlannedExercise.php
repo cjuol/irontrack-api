@@ -9,6 +9,7 @@ use App\Repository\Program\PlannedExerciseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: PlannedExerciseRepository::class)]
@@ -59,6 +60,7 @@ class PlannedExercise
         $this->plannedSets = new ArrayCollection();
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -75,6 +77,7 @@ class PlannedExercise
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getExercise(): Exercise
     {
         return $this->exercise;
@@ -86,6 +89,7 @@ class PlannedExercise
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSortOrder(): int
     {
         return $this->sortOrder;
@@ -97,6 +101,7 @@ class PlannedExercise
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -108,6 +113,7 @@ class PlannedExercise
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function isSuperset(): bool
     {
         return $this->isSuperset;
@@ -119,6 +125,7 @@ class PlannedExercise
         return $this;
     }
 
+    #[Groups(['mesocycle:sessions'])]
     public function getSupersetGroup(): ?string
     {
         return $this->supersetGroup;
@@ -131,6 +138,7 @@ class PlannedExercise
     }
 
     /** @return Collection<int, PlannedSet> */
+    #[Groups(['mesocycle:sessions'])]
     public function getPlannedSets(): Collection
     {
         return $this->plannedSets;

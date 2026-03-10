@@ -9,6 +9,7 @@ use App\Repository\Program\MesocycleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MesocycleRepository::class)]
@@ -70,6 +71,7 @@ class Mesocycle
         $this->sessionTemplates = new ArrayCollection();
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -86,6 +88,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getName(): string
     {
         return $this->name;
@@ -97,6 +100,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getStartDate(): \DateTimeImmutable
     {
         return $this->startDate;
@@ -108,6 +112,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getEndDate(): \DateTimeImmutable
     {
         return $this->endDate;
@@ -119,6 +124,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getNumWeeks(): int
     {
         return $this->numWeeks;
@@ -130,6 +136,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getObjective(): ?string
     {
         return $this->objective;
@@ -141,6 +148,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -152,6 +160,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getStepGoalTrainingDay(): int
     {
         return $this->stepGoalTrainingDay;
@@ -163,6 +172,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getStepGoalRestDay(): int
     {
         return $this->stepGoalRestDay;
@@ -174,6 +184,7 @@ class Mesocycle
         return $this;
     }
 
+    #[Groups(['mesocycle:read'])]
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;

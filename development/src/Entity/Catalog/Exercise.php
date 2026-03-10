@@ -64,13 +64,13 @@ class Exercise
         $this->secondaryMuscles = new ArrayCollection();
     }
 
-    #[Groups(['exercise:read', 'mesocycle:read', 'session:read', 'performance:read'])]
+    #[Groups(['exercise:read', 'mesocycle:read', 'mesocycle:sessions', 'session:read', 'performance:read'])]
     public function getId(): Uuid
     {
         return $this->id;
     }
 
-    #[Groups(['exercise:read', 'mesocycle:read', 'session:read', 'performance:read'])]
+    #[Groups(['exercise:read', 'mesocycle:read', 'mesocycle:sessions', 'session:read', 'performance:read'])]
     public function getName(): string
     {
         return $this->name;
@@ -118,7 +118,7 @@ class Exercise
         return $this;
     }
 
-    #[Groups(['exercise:read', 'mesocycle:read', 'session:read'])]
+    #[Groups(['exercise:read', 'mesocycle:read', 'mesocycle:sessions', 'session:read'])]
     public function getEquipment(): EquipmentType
     {
         return $this->equipment;

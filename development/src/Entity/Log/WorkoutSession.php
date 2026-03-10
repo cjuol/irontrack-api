@@ -9,6 +9,7 @@ use App\Repository\Log\WorkoutSessionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: WorkoutSessionRepository::class)]
@@ -88,6 +89,7 @@ class WorkoutSession
         $this->metabolicEntries = new ArrayCollection();
     }
 
+    #[Groups(['training-day:read', 'session:read'])]
     public function getId(): Uuid
     {
         return $this->id;
@@ -104,6 +106,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['training-day:read', 'session:read'])]
     public function getSessionTemplate(): ?SessionTemplate
     {
         return $this->sessionTemplate;
@@ -115,6 +118,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['training-day:read', 'session:read'])]
     public function getStartedAt(): \DateTimeImmutable
     {
         return $this->startedAt;
@@ -126,6 +130,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['training-day:read', 'session:read'])]
     public function getFinishedAt(): ?\DateTimeImmutable
     {
         return $this->finishedAt;
@@ -143,12 +148,14 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['training-day:read', 'session:read'])]
     public function isFinished(): bool
     {
         return $this->finishedAt !== null;
     }
 
     /** Duración en segundos. Null si la sesión no está cerrada. */
+    #[Groups(['training-day:read', 'session:read'])]
     public function getDurationSeconds(): ?int
     {
         if ($this->finishedAt === null) {
@@ -157,6 +164,7 @@ class WorkoutSession
         return $this->finishedAt->getTimestamp() - $this->startedAt->getTimestamp();
     }
 
+    #[Groups(['session:read'])]
     public function getPerceivedEffort(): ?int
     {
         return $this->perceivedEffort;
@@ -168,6 +176,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getNotes(): ?string
     {
         return $this->notes;
@@ -213,6 +222,7 @@ class WorkoutSession
     }
 
     /** @return Collection<int, ExerciseEntry> */
+    #[Groups(['session:read'])]
     public function getExerciseEntries(): Collection
     {
         return $this->exerciseEntries;
@@ -228,6 +238,7 @@ class WorkoutSession
     }
 
     /** @return Collection<int, CardioEntry> */
+    #[Groups(['session:read'])]
     public function getCardioEntries(): Collection
     {
         return $this->cardioEntries;
@@ -243,6 +254,7 @@ class WorkoutSession
     }
 
     /** @return Collection<int, MetabolicEntry> */
+    #[Groups(['session:read'])]
     public function getMetabolicEntries(): Collection
     {
         return $this->metabolicEntries;
@@ -257,6 +269,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getCurrentMetabolicPlan(): ?array
     {
         return $this->currentMetabolicPlan;
@@ -268,6 +281,7 @@ class WorkoutSession
         return $this;
     }
 
+    #[Groups(['session:read'])]
     public function getCurrentCardioPlan(): ?array
     {
         return $this->currentCardioPlan;
