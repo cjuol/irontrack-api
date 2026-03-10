@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Entity\Log;
 
 use App\Entity\Program\WeeklyMetabolicPlan;
+use App\Repository\Log\MetabolicEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MetabolicEntryRepository::class)]
 #[ORM\Table(name: 'metabolic_entries')]
 class MetabolicEntry
 {

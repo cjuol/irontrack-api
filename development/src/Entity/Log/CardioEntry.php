@@ -6,10 +6,11 @@ namespace App\Entity\Log;
 
 use App\Entity\Program\WeeklyCardioPlan;
 use App\Enum\CardioType;
+use App\Repository\Log\CardioEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: CardioEntryRepository::class)]
 #[ORM\Table(name: 'cardio_entries')]
 class CardioEntry
 {
