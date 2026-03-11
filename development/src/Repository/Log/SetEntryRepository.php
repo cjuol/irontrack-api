@@ -10,13 +10,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<SetEntry>
- *
- * Repositorio central para todo lo relacionado con historial de rendimiento,
- * progresión de carga y cálculo de métricas. Es el más utilizado por los
- * servicios PreviousPerformanceFetcher y ProgressionAnalyzer (Fase 4).
- */
+/** @extends ServiceEntityRepository<SetEntry> */
 class SetEntryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -24,16 +18,7 @@ class SetEntryRepository extends ServiceEntityRepository
         parent::__construct($registry, SetEntry::class);
     }
 
-    /**
-     * Devuelve las series de la última sesión en que el usuario realizó un ejercicio.
-     *
-     * La lógica es: encontrar el TrainingDay más reciente que contenga ese ejercicio
-     * y devolver todas las series de esa sesión, ordenadas por sortOrder.
-     *
-     * Usado por SessionPreloader para precargar los pesos de referencia.
-     *
-     * @return SetEntry[]
-     */
+    /** @return SetEntry[] */
     public function findLastPerformance(Exercise $exercise, User $user): array
     {
         $lastDate = $this->createQueryBuilder('se')
@@ -68,19 +53,9 @@ class SetEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Devuelve las últimas N sesiones en que el usuario realizó un ejercicio,
-     * con todas sus series. Formato agrupado por sesión.
-     *
      * Se agrupa por sessionId (no por fecha) porque un mismo día puede tener
      * varias sesiones con el mismo ejercicio y mezclarlas en un solo bloque
      * falsearía el historial.
-     *
-     * Usado por GET /api/v1/exercises/{id}/history
-     *
-     * Resultado: [
-     *   ['date' => '2026-02-10', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
-     *   ['date' => '2026-01-27', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
-     * ]
      *
      * @return array<int, array{date: string, sessionId: string, sets: SetEntry[]}>
      */
@@ -143,17 +118,7 @@ class SetEntryRepository extends ServiceEntityRepository
         return array_values($grouped);
     }
 
-    /**
-     * Devuelve el peso máximo registrado por sesión para un ejercicio,
-     * en los últimos N días.
-     *
-     * Devuelve datos brutos para que ProgressionAnalyzer aplique
-     * estadística robusta (StatGuard) sobre ellos.
-     *
-     * Resultado: [['date' => '2026-01-10', 'maxWeight' => 100.0], ...]
-     *
-     * @return array<int, array{date: string, maxWeight: float}>
-     */
+    /** @return array<int, array{date: string, maxWeight: float}> */
     public function findMaxWeightPerSession(
         Exercise $exercise,
         User $user,
@@ -179,8 +144,6 @@ class SetEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Devuelve el 1RM estimado (Epley) más alto por sesión.
-     *
      * La fórmula Epley se aplica en PHP (no en SQL) para mantener
      * la lógica centralizada en SetEntry::getEstimated1RM().
      *
@@ -228,16 +191,7 @@ class SetEntryRepository extends ServiceEntityRepository
         );
     }
 
-    /**
-     * Devuelve el volumen total (kg × reps) agrupado por grupo muscular primario
-     * en un rango de fechas.
-     *
-     * Usado por el endpoint de volumen semanal del dashboard.
-     *
-     * Resultado: [['muscle' => 'Pecho', 'totalVolume' => 12450.0], ...]
-     *
-     * @return array<int, array{muscle: string, totalVolume: float}>
-     */
+    /** @return array<int, array{muscle: string, totalVolume: float}> */
     public function findVolumeByMuscleGroup(
         User $user,
         \DateTimeImmutable $from,
@@ -262,12 +216,7 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Devuelve el número de series totales por grupo muscular en un rango.
-     * Complementa findVolumeByMuscleGroup para calcular la distribución de frecuencia.
-     *
-     * @return array<int, array{muscle: string, totalSets: int}>
-     */
+    /** @return array<int, array{muscle: string, totalSets: int}> */
     public function findSetCountByMuscleGroup(
         User $user,
         \DateTimeImmutable $from,
@@ -292,13 +241,7 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Devuelve el PR (peso máximo levantado) del usuario en cada ejercicio.
-     *
-     * Resultado: [['exerciseName' => 'Sentadilla', 'maxWeight' => 120.0, 'date' => '2026-01-15'], ...]
-     *
-     * @return array<int, array{exerciseName: string, maxWeight: float, date: string}>
-     */
+    /** @return array<int, array{exerciseName: string, maxWeight: float, date: string}> */
     public function findPersonalRecords(User $user): array
     {
         return $this->createQueryBuilder('se')
@@ -319,10 +262,6 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Comprueba si una serie concreta es un PR para ese ejercicio y usuario.
-     * Útil para mostrar el badge "🏆 PR" en tiempo real al registrar la serie.
-     */
     public function isPersonalRecord(SetEntry $setEntry, User $user): bool
     {
         $exercise = $setEntry->getExerciseEntry()->getExercise();

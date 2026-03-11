@@ -22,9 +22,6 @@ class ProgressionAnalyzer
     }
 
     /**
-     * Devuelve el historial de progresión de un ejercicio junto con el análisis
-     * estadístico robusto sobre los valores de 1RM estimado.
-     *
      * La media de Huber ignora sesiones anómalas (lesiones, días malos) para
      * que la línea de tendencia refleje la progresión real del atleta.
      *
@@ -71,12 +68,7 @@ class ProgressionAnalyzer
         return ['dataPoints' => $dataPoints, 'trend' => $trend];
     }
 
-    /**
-     * Devuelve el volumen y las series por grupo muscular en un rango de fechas,
-     * combinando ambas queries en un único array indexado por músculo.
-     *
-     * @return array<int, array{muscle: string, volume: float, sets: int}>
-     */
+    /** @return array<int, array{muscle: string, volume: float, sets: int}> */
     public function getVolumeStats(User $user, \DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
         $volumes = $this->setEntryRepository->findVolumeByMuscleGroup($user, $from, $to);

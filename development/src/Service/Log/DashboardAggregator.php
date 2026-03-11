@@ -20,11 +20,6 @@ class DashboardAggregator
         private readonly SetEntryRepository       $setEntryRepository,
     ) {}
 
-    /**
-     * Ensambla el resumen del mesociclo activo para el dashboard.
-     *
-     * Si no hay mesociclo activo, devuelve los datos generales de las últimas 4 semanas.
-     */
     public function getSummary(User $user): array
     {
         $today     = new \DateTimeImmutable('today');

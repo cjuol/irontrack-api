@@ -62,7 +62,6 @@ class MetricsController extends AbstractController
                 return $this->json(['error' => 'Formato de fecha inválido. Usa YYYY-MM-DD.'], Response::HTTP_BAD_REQUEST);
             }
         } else {
-            // Si no hay rango, usamos el mesociclo activo o las últimas 4 semanas
             $mesocycle = $this->mesocycleRepository->findActiveForUser($user, $today);
             $from      = $mesocycle?->getStartDate() ?? $today->modify('-28 days');
             $to        = $mesocycle?->getEndDate()   ?? $today;
