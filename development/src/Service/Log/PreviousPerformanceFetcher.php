@@ -19,12 +19,7 @@ class PreviousPerformanceFetcher
         return $this->setEntryRepository->findLastPerformance($exercise, $user);
     }
 
-    /**
-     * Resumen de la última vez que el usuario realizó el ejercicio.
-     * Devuelve null si no hay historial previo.
-     *
-     * @return array{maxWeight: float, totalVolume: float, sets: int}|null
-     */
+    /** @return array{maxWeight: float, totalVolume: float, sets: int}|null */
     public function getLastPerformanceSummary(Exercise $exercise, User $user): ?array
     {
         $sets = $this->getLastPerformance($exercise, $user);
