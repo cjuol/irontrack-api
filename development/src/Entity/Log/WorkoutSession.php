@@ -162,7 +162,39 @@ class WorkoutSession
         return $this->finishedAt->getTimestamp() - $this->startedAt->getTimestamp();
     }
 
-    #[Groups(['session:read'])]
+    #[Groups(['training-day:read'])]
+    public function getExerciseCount(): int
+    {
+        return $this->exerciseEntries->count();
+    }
+
+    #[Groups(['training-day:read'])]
+    public function getSetCount(): int
+    {
+        $count = 0;
+
+        foreach ($this->exerciseEntries as $entry) {
+            $count += $entry->getSetEntries()->count();
+        }
+
+        return $count;
+    }
+
+    #[Groups(['training-day:read'])]
+    public function getTotalVolumeKg(): float
+    {
+        $volume = 0.0;
+
+        foreach ($this->exerciseEntries as $entry) {
+            foreach ($entry->getSetEntries() as $setEntry) {
+                $volume += $setEntry->getWeightKg() * $setEntry->getRepsCompleted();
+            }
+        }
+
+        return round($volume, 2);
+    }
+
+
     public function getPerceivedEffort(): ?int
     {
         return $this->perceivedEffort;
