@@ -4,8 +4,8 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/demo/public
 
 # Instalar dependencias básicas y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
-    git unzip zip curl wget gnupg libzip-dev libicu-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install zip intl pdo pdo_mysql
+    git unzip zip curl wget gnupg libzip-dev libicu-dev libonig-dev libxml2-dev libpq-dev \
+    && docker-php-ext-install zip intl pdo pdo_pgsql
 
 
 

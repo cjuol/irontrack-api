@@ -5,18 +5,24 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./development:/var/www/html/demo 
+      - ./development:/var/www/html/demo
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
   db:
-    image: mariadb:latest
+    image: postgres:16
     environment:
-      MARIADB_ROOT_PASSWORD: example
-      MARIADB_DATABASE: "demo_db"
-      MARIADB_USER: demo_user
-      MARIADB_PASSWORD: demo_password
+      POSTGRES_DB: training_diary
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d training_diary"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db-data:
