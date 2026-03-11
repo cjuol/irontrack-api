@@ -1,260 +1,146 @@
-# [Nombre de tu Proyecto]
+# Training Diary
 
-## Descripción
+API REST de diario de entrenamiento personal para atletas de Hyrox. Permite registrar sesiones de entrenamiento, seguir la progresión por ejercicio, gestionar mesociclos y consultar métricas de rendimiento.
 
-[Describe aquí tu proyecto: qué hace, para qué sirve, problemas que resuelve, etc.]
+## Stack
 
-## Características
+- **Backend:** Symfony 7.4 + Doctrine ORM
+- **Base de datos:** PostgreSQL 16
+- **Auth:** LexikJWTAuthenticationBundle (JWT stateless)
+- **PHP:** 8.3
+- **Entorno:** Docker (Apache + PHP-FPM)
 
-- [Característica 1]
-- [Característica 2]
-- [Característica 3]
+## Requisitos
 
-## Tecnologías Utilizadas
-
-- PHP 8.3
-- MariaDB
-- [Otras tecnologías que uses en tu proyecto]
-
-## Requisitos Previos
-
-- Docker Engine 20.10 o superior
-- Docker Compose v2.0 o superior
+- Docker Engine 20.10+
+- Docker Compose v2.0+
 - Git
 
-## Instalación y Configuración
+## Instalación
 
-1. **Clona este repositorio**
+1. **Clona el repositorio**
    ```bash
-   git clone [URL-DE-TU-REPOSITORIO]
-   cd [nombre-directorio]
+   git clone https://github.com/Cjuol/ideal-potato.git
+   cd ideal-potato
    ```
 
-2. **Configura las variables de entorno**
-   
-   Edita el archivo [docker-compose.yml](docker-compose.yml) y modifica las credenciales de la base de datos según tus necesidades:
-   - Base de datos: `demo_db` → Cambia a tu nombre de BD
-   - Usuario: `demo_user` → Cambia a tu usuario
-   - Contraseña: `demo_password` → Cambia a tu contraseña
+2. **Configura el entorno**
+   ```bash
+   cp development/.env development/.env.local
+   # Edita .env.local con tus valores (APP_SECRET, JWT_PASSPHRASE...)
+   ```
 
-3. **Inicia los contenedores**
+3. **Levanta los contenedores**
    ```bash
    docker-compose up -d
    ```
 
-4. **Accede a la aplicación**
-   
-   Abre tu navegador en: `http://localhost`
+4. **Genera las claves JWT**
+   ```bash
+   docker exec ideal-potato-web-1 php bin/console lexik:jwt:generate-keypair
+   ```
 
-## Uso
+5. **Ejecuta las migraciones y los fixtures**
+   ```bash
+   docker exec ideal-potato-web-1 php bin/console doctrine:migrations:migrate --no-interaction
+   docker exec ideal-potato-web-1 php bin/console doctrine:fixtures:load --no-interaction
+   ```
 
-[Explica aquí cómo usar tu aplicación: funcionalidades principales, ejemplos de uso, capturas de pantalla si es necesario]
+La API queda disponible en `http://localhost`.
 
-## Estructura del Proyecto
+## Credenciales de base de datos (desarrollo)
+
+| Parámetro | Valor |
+|-----------|-------|
+| Host | `db` |
+| Puerto | `5432` |
+| Base de datos | `training_diary` |
+| Usuario | `app` |
+| Contraseña | `secret` |
+
+⚠️ Cambia estas credenciales antes de cualquier despliegue.
+
+## API Endpoints (v1)
+
+### Programación
+```
+GET    /api/v1/mesocycles
+GET    /api/v1/mesocycles/{id}
+GET    /api/v1/mesocycles/{id}/sessions
+GET    /api/v1/sessions/{id}/exercises
+```
+
+### Diario de entrenamiento
+```
+GET    /api/v1/training-days
+GET    /api/v1/training-days/{date}
+POST   /api/v1/training-days/{date}/sessions
+PUT    /api/v1/training-days/{date}/steps
+GET    /api/v1/sessions/{id}
+POST   /api/v1/sessions/{id}/exercises
+POST   /api/v1/exercise-entries/{id}/sets
+PUT    /api/v1/set-entries/{id}
+DELETE /api/v1/set-entries/{id}
+POST   /api/v1/sessions/{id}/cardio
+POST   /api/v1/sessions/{id}/metabolic
+PUT    /api/v1/sessions/{id}/finish
+```
+
+### Rendimiento
+```
+GET    /api/v1/exercises/{id}/last-performance
+GET    /api/v1/exercises/{id}/history
+```
+
+Todos los endpoints protegidos requieren `Authorization: Bearer <token>`.
+
+## Estructura del proyecto
 
 ```
 .
-├── development/           # Código fuente de tu aplicación
-├── web/                  # Configuración del entorno Docker
-├── docker-compose.yml    # Orquestación de servicios
+├── development/           # Código fuente Symfony
+│   ├── src/
+│   │   ├── Controller/    # Endpoints API v1
+│   │   ├── Entity/        # Entidades Doctrine (18 entidades)
+│   │   ├── Enum/          # Enums de dominio (11 enums)
+│   │   ├── Repository/    # Repositorios con queries complejas
+│   │   ├── Service/       # Lógica de negocio
+│   │   └── DataFixtures/  # Mesociclo 16 + catálogo base
+│   └── config/
+├── web/                   # Dockerfile + configuración Apache
+├── docker-compose.yml
 └── README.md
 ```
 
-## Contribuir
+## Comandos útiles
 
-[Explica cómo otros pueden contribuir a tu proyecto]
+```bash
+# Acceder al contenedor web
+docker exec -it ideal-potato-web-1 bash
 
-## Licencia
+# Consola Symfony
+docker exec ideal-potato-web-1 php bin/console [comando]
 
-[Especifica la licencia de tu proyecto]
+# Tests
+docker exec ideal-potato-web-1 phpunit
 
-## Contacto
+# Ver logs
+docker-compose logs -f web
+```
 
-[Tu nombre] - [Tu usuario de GitHub] - [Tu email]
+## Hoja de ruta
+
+| Fase | Estado |
+|------|--------|
+| Entidades + Enums | ✅ |
+| Repositorios | ✅ |
+| Servicios de dominio | ✅ |
+| Fixtures (M16) | ✅ |
+| Controllers + DTOs | ✅ |
+| Métricas y progresión | ⏳ |
+| Integraciones (Garmin, Fitbit, Strava) | ⏳ |
+| PHPStan lvl 8 + tests >80% + CI/CD | ⏳ |
 
 ---
 
-# 📦 Guía del Entorno de Desarrollo Docker
-
-Este proyecto utiliza un entorno de desarrollo completamente containerizado con Docker. A continuación se detalla cómo funciona y cómo utilizarlo.
-
-## Componentes del Entorno
-
-### Servicios Docker
-
-El entorno incluye dos servicios principales definidos en [docker-compose.yml](docker-compose.yml):
-
-1. **Web (Apache + PHP 8.3)**
-   - Puerto: 80
-   - Incluye: Composer, PHPUnit, extensiones PHP comunes
-   - Directorio de trabajo: `/var/www/html/demo`
-
-2. **Base de Datos (MariaDB)**
-   - Puerto: 3306
-   - Versión: MariaDB (última estable)
-   - Persistencia: Volumen Docker
-
-### Credenciales de Base de Datos
-
-Las credenciales por defecto están en [docker-compose.yml](docker-compose.yml):
-
-- **Host:** `db`
-- **Puerto:** `3306`
-- **Base de datos:** `demo_db`
-- **Usuario:** `demo_user`
-- **Contraseña:** `demo_password`
-- **Usuario root:** `root`
-- **Contraseña root:** `example`
-
-⚠️ **Importante:** Cambia estas credenciales antes de usar en producción.
-
-## Comandos Docker Útiles
-
-### Gestión de Contenedores
-
-```bash
-# Iniciar los contenedores
-docker-compose up -d
-
-# Detener los contenedores
-docker-compose down
-
-# Reiniciar los contenedores
-docker-compose restart
-
-# Ver estado de los contenedores
-docker-compose ps
-
-# Ver logs en tiempo real
-docker-compose logs -f
-
-# Ver logs solo del servicio web
-docker logs -f docker-env-web-1
-```
-
-### Acceso a los Contenedores
-
-```bash
-# Acceder al contenedor web (bash interactivo)
-docker exec -it docker-env-web-1 bash
-
-# Acceder al contenedor de base de datos
-docker exec -it docker-env-db-1 bash
-```
-
-### Comandos de Desarrollo
-
-```bash
-# Ejecutar Composer
-docker exec docker-env-web-1 composer install
-docker exec docker-env-web-1 composer update
-docker exec docker-env-web-1 composer require [paquete]
-
-# Ejecutar PHPUnit
-docker exec docker-env-web-1 phpunit
-docker exec docker-env-web-1 phpunit --filter [test-name]
-
-# Ejecutar scripts PHP
-docker exec docker-env-web-1 php script.php
-
-# Ejecutar comandos de Symfony (si usas Symfony)
-docker exec docker-env-web-1 php bin/console [comando]
-
-# Ejecutar comandos de Laravel (si usas Laravel)
-docker exec docker-env-web-1 php artisan [comando]
-```
-
-## Configuración del Entorno
-
-### Selección de Framework
-
-El entorno soporta la creación automática de proyectos. Edita [docker-compose.yml](docker-compose.yml) y añade la variable `FRAMEWORK`:
-
-```yaml
-services:
-  web:
-    environment:
-      - FRAMEWORK=laravel  # Opciones: symfony, laravel, none
-```
-
-**Opciones disponibles:**
-- `symfony` - Crea automáticamente un proyecto Symfony 6.4
-- `laravel` - Crea automáticamente un proyecto Laravel con Filament y Livewire
-- `none` (por defecto) - No crea ningún proyecto automáticamente
-
-**Nota:** La creación solo ocurre si no existe `composer.json` en `development/`
-
-### Directorio de Desarrollo
-
-- **Local:** `./development/`
-- **Contenedor:** `/var/www/html/demo`
-
-Todo el código que escribas en `development/` se sincroniza automáticamente con el contenedor.
-
-### Personalización Avanzada
-
-#### Agregar Extensiones PHP
-
-Edita [web/Dockerfile](web/Dockerfile) y añade las extensiones necesarias:
-
-```dockerfile
-RUN docker-php-ext-install [extension-name]
-```
-
-#### Modificar Inicialización
-
-Edita [web/entrypoint.sh](web/entrypoint.sh) para personalizar lo que ocurre al iniciar el contenedor.
-
-#### Cambiar Puertos
-
-Edita [docker-compose.yml](docker-compose.yml):
-
-```yaml
-services:
-  web:
-    ports:
-      - "8080:80"  # Cambiar puerto 80 a 8080
-```
-
-## Solución de Problemas
-
-### Los contenedores no inician
-
-```bash
-# Ver logs detallados
-docker-compose logs
-
-# Reconstruir los contenedores
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-### Error de permisos en archivos
-
-```bash
-# Desde dentro del contenedor web
-docker exec -it docker-env-web-1 bash
-chown -R www-data:www-data /var/www/html/demo
-```
-
-### Puerto ya en uso
-
-Si el puerto 80 o 3306 ya está en uso, cambia los puertos en [docker-compose.yml](docker-compose.yml).
-
-### Base de datos no conecta
-
-Verifica que:
-- El contenedor de base de datos esté corriendo: `docker-compose ps`
-- Las credenciales en tu código coincidan con [docker-compose.yml](docker-compose.yml)
-- Uses `db` como host, no `localhost`
-
-## Recursos Adicionales
-
-- [Documentación de Docker](https://docs.docker.com/)
-- [Documentación de Docker Compose](https://docs.docker.com/compose/)
-- [PHP Docker Official Image](https://hub.docker.com/_/php)
-
----
-
-**Plantilla creada por:** Cristobal Jurado Oller - [@Cjuol](https://github.com/Cjuol)  
-**Repositorio de la plantilla:** [https://github.com/cjuol/docker-env](https://github.com/cjuol/docker-env)
+**Autor:** Cristóbal Jurado Oller — [@Cjuol](https://github.com/Cjuol)
