@@ -84,25 +84,29 @@ class WorkoutSessionRepository extends ServiceEntityRepository
     /**
      * Duración media de sesiones completadas en un rango de fechas.
      * Devuelve la media en segundos, o null si no hay sesiones.
+     *
+     * Usa SQL nativo con EXTRACT(EPOCH FROM ...) en lugar de DQL porque
+     * Doctrine no soporta de forma nativa la sustracción de timestamps en PostgreSQL.
      */
     public function getAvgDurationInRange(
         User $user,
         \DateTimeImmutable $from,
         \DateTimeImmutable $to,
     ): ?float {
-        // Calculamos la diferencia en segundos a nivel de BD (más eficiente que traer las entidades)
-        $result = $this->createQueryBuilder('ws')
-            ->select('AVG(UNIX_TIMESTAMP(ws.finishedAt) - UNIX_TIMESTAMP(ws.startedAt))')
-            ->join('ws.trainingDay', 'td')
-            ->where('td.user = :user')
-            ->andWhere('td.date >= :from')
-            ->andWhere('td.date <= :to')
-            ->andWhere('ws.finishedAt IS NOT NULL')
-            ->setParameter('user', $user)
-            ->setParameter('from', $from->format('Y-m-d'))
-            ->setParameter('to', $to->format('Y-m-d'))
-            ->getQuery()
-            ->getSingleScalarResult();
+        $result = $this->getEntityManager()->getConnection()->fetchOne(
+            'SELECT AVG(EXTRACT(EPOCH FROM (ws.finished_at - ws.started_at)))
+               FROM workout_sessions ws
+               JOIN training_days td ON td.id = ws.training_day_id
+              WHERE td.user_id = :user
+                AND td.date >= :from
+                AND td.date <= :to
+                AND ws.finished_at IS NOT NULL',
+            [
+                'user' => $user->getId()->toRfc4122(),
+                'from' => $from->format('Y-m-d'),
+                'to'   => $to->format('Y-m-d'),
+            ],
+        );
 
         return $result !== null ? (float) $result : null;
     }

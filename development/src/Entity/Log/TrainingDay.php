@@ -48,17 +48,15 @@ class TrainingDay
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
-    // --- Campos reservados para integraciones futuras (Garmin / Fitbit) ---
-
-    /** @future Garmin Connect */
+    /** Reservado para integración con Garmin Connect. */
     #[ORM\Column(type: 'decimal', precision: 4, scale: 2, nullable: true)]
     private ?string $sleepHours = null;
 
-    /** @future Garmin / Fitbit */
+    /** Reservado para integración con Garmin / Fitbit. */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $restingHeartRate = null;
 
-    /** @future Fitbit */
+    /** Reservado para integración con Fitbit. */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $totalCaloriesDay = null;
 

@@ -24,10 +24,6 @@ class SetEntryRepository extends ServiceEntityRepository
         parent::__construct($registry, SetEntry::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Historial de rendimiento (usado por PreviousPerformanceFetcher)
-    // -------------------------------------------------------------------------
-
     /**
      * Devuelve las series de la última sesión en que el usuario realizó un ejercicio.
      *
@@ -40,7 +36,6 @@ class SetEntryRepository extends ServiceEntityRepository
      */
     public function findLastPerformance(Exercise $exercise, User $user): array
     {
-        // Primero encontramos la fecha de la última sesión con ese ejercicio
         $lastDate = $this->createQueryBuilder('se')
             ->select('MAX(td.date)')
             ->join('se.exerciseEntry', 'ee')
@@ -57,7 +52,6 @@ class SetEntryRepository extends ServiceEntityRepository
             return [];
         }
 
-        // Luego traemos todas las series de esa fecha
         return $this->createQueryBuilder('se')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
@@ -77,11 +71,15 @@ class SetEntryRepository extends ServiceEntityRepository
      * Devuelve las últimas N sesiones en que el usuario realizó un ejercicio,
      * con todas sus series. Formato agrupado por sesión.
      *
+     * Se agrupa por sessionId (no por fecha) porque un mismo día puede tener
+     * varias sesiones con el mismo ejercicio y mezclarlas en un solo bloque
+     * falsearía el historial.
+     *
      * Usado por GET /api/v1/exercises/{id}/history
      *
      * Resultado: [
-     *   ['date' => '2026-02-10', 'sets' => [SetEntry, ...]],
-     *   ['date' => '2026-01-27', 'sets' => [SetEntry, ...]],
+     *   ['date' => '2026-02-10', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
+     *   ['date' => '2026-01-27', 'sessionId' => 'uuid', 'sets' => [SetEntry, ...]],
      * ]
      *
      * @return array<int, array{date: string, sessionId: string, sets: SetEntry[]}>
@@ -91,9 +89,8 @@ class SetEntryRepository extends ServiceEntityRepository
         User $user,
         int $limit = 10,
     ): array {
-        // Buscamos las fechas de las últimas N sesiones con ese ejercicio
-        $dates = $this->createQueryBuilder('se')
-            ->select('DISTINCT td.date AS date, IDENTITY(ws.id) AS sessionId')
+        $sessions = $this->createQueryBuilder('se')
+            ->select('DISTINCT ws.id AS sessionId, td.date AS date')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
@@ -106,54 +103,45 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
 
-        if (empty($dates)) {
+        if (empty($sessions)) {
             return [];
         }
 
-        $dateValues = array_column($dates, 'date');
+        $sessionIds = array_column($sessions, 'sessionId');
 
-        // Cargamos todas las series de esas fechas en una sola query
         $sets = $this->createQueryBuilder('se')
             ->join('se.exerciseEntry', 'ee')
             ->join('ee.workoutSession', 'ws')
             ->join('ws.trainingDay', 'td')
             ->where('ee.exercise = :exercise')
             ->andWhere('td.user = :user')
-            ->andWhere('td.date IN (:dates)')
+            ->andWhere('ws.id IN (:sessions)')
             ->setParameter('exercise', $exercise)
             ->setParameter('user', $user)
-            ->setParameter('dates', $dateValues)
+            ->setParameter('sessions', $sessionIds)
             ->orderBy('td.date', 'DESC')
             ->addOrderBy('se.sortOrder', 'ASC')
             ->getQuery()
             ->getResult();
 
-        // Agrupamos las series por fecha
         $grouped = [];
         foreach ($sets as $set) {
             /** @var SetEntry $set */
-            $date = $set->getExerciseEntry()
-                        ->getWorkoutSession()
-                        ->getTrainingDay()
-                        ->getDate()
-                        ->format('Y-m-d');
+            $session   = $set->getExerciseEntry()->getWorkoutSession();
+            $sessionId = (string) $session->getId();
 
-            if (!isset($grouped[$date])) {
-                $grouped[$date] = [
-                    'date'      => $date,
-                    'sessionId' => (string) $set->getExerciseEntry()->getWorkoutSession()->getId(),
+            if (!isset($grouped[$sessionId])) {
+                $grouped[$sessionId] = [
+                    'date'      => $session->getTrainingDay()->getDate()->format('Y-m-d'),
+                    'sessionId' => $sessionId,
                     'sets'      => [],
                 ];
             }
-            $grouped[$date]['sets'][] = $set;
+            $grouped[$sessionId]['sets'][] = $set;
         }
 
         return array_values($grouped);
     }
-
-    // -------------------------------------------------------------------------
-    // Métricas de progresión (Fase 4 — usadas por ProgressionAnalyzer)
-    // -------------------------------------------------------------------------
 
     /**
      * Devuelve el peso máximo registrado por sesión para un ejercicio,
@@ -221,7 +209,6 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
 
-        // Agrupamos por fecha y nos quedamos con el 1RM más alto de cada sesión
         $byDate = [];
         foreach ($sets as $set) {
             $date    = $set->getExerciseEntry()->getWorkoutSession()->getTrainingDay()->getDate()->format('Y-m-d');
@@ -240,10 +227,6 @@ class SetEntryRepository extends ServiceEntityRepository
             array_values($byDate),
         );
     }
-
-    // -------------------------------------------------------------------------
-    // Volumen por grupo muscular (Fase 4 — dashboard)
-    // -------------------------------------------------------------------------
 
     /**
      * Devuelve el volumen total (kg × reps) agrupado por grupo muscular primario
@@ -308,10 +291,6 @@ class SetEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-    // -------------------------------------------------------------------------
-    // PRs (Personal Records) — Fase 4
-    // -------------------------------------------------------------------------
 
     /**
      * Devuelve el PR (peso máximo levantado) del usuario en cada ejercicio.
