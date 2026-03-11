@@ -9,6 +9,7 @@ API REST de diario de entrenamiento personal para atletas de Hyrox. Permite regi
 - **Auth:** LexikJWTAuthenticationBundle (JWT stateless)
 - **PHP:** 8.3
 - **Entorno:** Docker (Apache + PHP-FPM)
+- **Estadística:** cjuol/statguard v1.1 (RobustStats, StatsComparator)
 
 ## Requisitos
 
@@ -92,6 +93,14 @@ GET    /api/v1/exercises/{id}/last-performance
 GET    /api/v1/exercises/{id}/history
 ```
 
+### Métricas y progresión
+```
+GET    /api/v1/metrics/exercises/{id}/progression   ?days=90
+GET    /api/v1/metrics/volume                        ?from=YYYY-MM-DD&to=YYYY-MM-DD
+GET    /api/v1/metrics/personal-records
+GET    /api/v1/dashboard/summary
+```
+
 Todos los endpoints protegidos requieren `Authorization: Bearer <token>`.
 
 ## Estructura del proyecto
@@ -137,7 +146,7 @@ docker-compose logs -f web
 | Servicios de dominio | ✅ |
 | Fixtures (M16) | ✅ |
 | Controllers + DTOs | ✅ |
-| Métricas y progresión | ⏳ |
+| Métricas y progresión | ✅ |
 | Integraciones (Garmin, Fitbit, Strava) | ⏳ |
 | PHPStan lvl 8 + tests >80% + CI/CD | ⏳ |
 

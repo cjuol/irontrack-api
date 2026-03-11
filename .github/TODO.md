@@ -2,11 +2,10 @@
 
 ## 🚧 Siguiente Tarea Inmediata
 
-**Métricas y progresión**
-- [ ] Endpoints de estadísticas por músculo (`/api/v1/stats/volume`, etc.).
-- [ ] 1RM histórico y progresión de carga por ejercicio.
-- [ ] Integración con `cjuol/statguard` para análisis estadístico.
-- [ ] Dashboard endpoint con resumen del mesociclo activo.
+**Integraciones externas**
+- [ ] Scaffold Garmin — OAuth 2.0, sync de pasos, HRV y sueño.
+- [ ] Scaffold Fitbit — OAuth 2.0, sync de pasos y actividad.
+- [ ] Scaffold Strava — OAuth 2.0, import de workouts de cardio.
 
 ---
 
@@ -19,8 +18,8 @@
 | 3. Servicios | ✅ Hecho | PreviousPerformanceFetcher, TrainingDayService, WorkoutSessionService, SessionPreloader. |
 | 4. Fixtures | ✅ Hecho | DataFixtures del Mesociclo 16 + catálogo base. |
 | 5. Controllers/DTOs | ✅ Hecho | 6 controllers + 7 DTOs. Serialización con grupos. |
-| 6. Métricas | 🚧 **Siguiente** | Progresión, StatGuard, dashboard. |
-| 7. Integraciones | ⏳ Pendiente | Scaffold Garmin, Fitbit, Strava. |
+| 6. Métricas | ✅ Hecho | ProgressionAnalyzer (StatGuard), DashboardAggregator, MetricsController, DashboardController. |
+| 7. Integraciones | 🚧 **Siguiente** | Scaffold Garmin, Fitbit, Strava. |
 | 8. Calidad | ⏳ Pendiente | PHPStan lvl 8, tests >80%, CI/CD. |
 
 ---
@@ -29,4 +28,6 @@
 
 - `symfony/validator` añadido como dependencia — ejecutar `composer install` dentro del contenedor.
 - Los grupos de serialización son: `mesocycle:read`, `mesocycle:sessions`, `training-day:read`, `session:read`, `performance:read`.
-- `WorkoutSessionRepository::getAvgDurationInRange()` usa `UNIX_TIMESTAMP` — pendiente de migrar a `EXTRACT(EPOCH...)` cuando se implemente el dashboard.
+- `cjuol/statguard` v1.1 instalado. Namespace: `Cjuol\StatGuard\`. Clases: `RobustStats`, `ClassicStats`, `StatsComparator`.
+- La migración de BD es ahora `Version20260311095437.php` (PostgreSQL nativo). La versión anterior era MySQL y fue reemplazada.
+- `WorkoutSessionRepository::getAvgDurationInRange()` usa SQL nativo con `EXTRACT(EPOCH FROM ...)` — compatible con PostgreSQL.
